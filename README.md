@@ -5,7 +5,7 @@
 ## Introduction
 When processing data from some systems (mainly legacy ones), it's usual to have Fixed Length Files, which are files that contain lines which content is split using a specific length for each field of a record.
 
-This kind of files are sometimes tricky to handle as many times there is a spaghetti of string manipulations and padding, and character counting and...Well, many things to take care of.
+This kind of files are sometimes tricky to handle as many times there is a spaghetti of string manipulations and padding, and character counting and... Well, many things to take care of.
 
 This library comes to the rescue of programmers dealing with fixed length files. It enables you to simply define how your records are structured and it will handle these records for you in a nice Kotlin DSL for further processing.
 
