@@ -135,4 +135,4 @@ fixedLengthFileParser(fileInputStream) {
 ## Features
 
 - The file is streamed into a sequence of values, and is never loaded in its entirety to the memory. You should expect this to have a good performance over a very big file.
-- The Kotlin DSL makes it easier to define the file parsing in a single point, and de sequence processing can be done anywhere
+- The Kotlin DSL makes it easier to define the file parsing in a single point, and the sequence processing can be done anywhere
