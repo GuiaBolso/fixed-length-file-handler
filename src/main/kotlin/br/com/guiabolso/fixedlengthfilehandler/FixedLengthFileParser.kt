@@ -24,7 +24,7 @@ import java.io.InputStream
 
 public fun <T> fixedLengthFileParser(
     fileStream: InputStream,
-    recordBuilder: FixedLengthFileParser<T>.() -> T
+    recordBuilder: FieldProvider.() -> T
 ): Sequence<T> {
     return FixedLengthFileParser(
         fileStream,
@@ -35,23 +35,49 @@ public fun <T> fixedLengthFileParser(
 @JvmName("fixedLengthFileParserTemplates")
 public fun fixedLengthFileParser(
     fileStream: InputStream,
-    recordBuilderMappings: FixedLengthFileParser<Any>.() -> Unit
+    recordBuilderMappings: RecordProvider<Any>.() -> Unit
 ): Sequence<Any> {
     val parser = FixedLengthFileParser<Any>(fileStream, emptyList())
     parser.apply(recordBuilderMappings)
     return parser.buildSequence()
 }
 
+
+interface FieldProvider {
+    val currentLine: String
+}
+
+public inline fun <reified R : Any> FieldProvider.field(
+    from: Int,
+    toExclusive: Int,
+    padding: Padding = NoPadding,
+    unpaddedValueParser: String.() -> R = ::defaultFileParser
+): R {
+    val stringBlock = currentLine.substring(from, toExclusive)
+    val stringWithRemovedPadding = padding.removePadding(stringBlock)
+    return stringWithRemovedPadding.unpaddedValueParser()
+}
+
+interface RecordProvider<T> : FieldProvider {
+    val recordMappings: MutableList<RecordMapping<out T>>
+}
+
+public inline fun <reified R : Any> RecordProvider<Any>.withRecord(
+    noinline lineSelector: (String) -> Boolean,
+    noinline recordBuilder: FixedLengthFileParser<*>.() -> R
+) {
+    val mapping = RecordMapping(lineSelector, recordBuilder)
+    recordMappings.add(mapping)
+}
+
 public class FixedLengthFileParser<T>(
     private val fileStream: InputStream,
     recordMappings: List<RecordMapping<out T>>
-) {
+) : RecordProvider<T> {
     
-    @PublishedApi
-    internal lateinit var currentLine: String
+    override lateinit var currentLine: String
     
-    @PublishedApi
-    internal var recordMappings: MutableList<RecordMapping<out T>> = recordMappings.toMutableList()
+    override var recordMappings: MutableList<RecordMapping<out T>> = recordMappings.toMutableList()
     
     public fun buildSequence(): Sequence<T> {
         return fileStream.bufferedReader().lineSequence().map {
@@ -63,26 +89,6 @@ public class FixedLengthFileParser<T>(
     private fun recordMapperFor(line: String): RecordMapping<out T> =
         recordMappings.find { it.lineSelector(line) } ?: throw NoRecordMappingException(line)
     
-    
-    public inline fun <reified R : T> withRecord(
-        noinline lineSelector: (String) -> Boolean,
-        noinline recordBuilder: FixedLengthFileParser<*>.() -> R
-    ) {
-        val mapping = RecordMapping(lineSelector, recordBuilder)
-        recordMappings.add(mapping)
-    }
-    
-    
-    public inline fun <reified R : Any> field(
-        from: Int,
-        toExclusive: Int,
-        padding: Padding = NoPadding,
-        unpaddedValueParser: String.() -> R = ::defaultFileParser
-    ): R {
-        val stringBlock = currentLine.substring(from, toExclusive)
-        val stringWithRemovedPadding = padding.removePadding(stringBlock)
-        return stringWithRemovedPadding.unpaddedValueParser()
-    }
 }
 
 public class RecordMapping<R>(
