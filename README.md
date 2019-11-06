@@ -99,7 +99,7 @@ field(15, 25, Padding.PaddingLeft('0')) { str: String -> StringBuilder(str).inse
 
 ## Advanced Usage
 
-For a unknown reason, many Fixed-Length file providers use the same file for more than one record, denoting a specific bit for record identification, so there's a possibility that this happens:
+For an unknown reason, many Fixed-Length file providers use the same file for more than one record, denoting a specific bit for record identification, so there's a possibility that this happens:
 
 ```
 1 FirstUserName       123.12
