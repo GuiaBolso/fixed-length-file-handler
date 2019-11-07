@@ -1,5 +1,8 @@
 # Fixed Length File Handler
 
+[![Build Status](https://img.shields.io/travis/GuiaBolso/fixed-length-file-handler)](https://travis-ci.org/GuiaBolso/fixed-length-file-handler)
+[![GitHub](https://img.shields.io/github/license/GuiaBolso/fixed-length-file-handler)](https://github.com/GuiaBolso/fixed-length-file-handler/blob/master/LICENSE)
+[![Bintray Download](https://img.shields.io/bintray/v/gb-opensource/maven/Fixed-Length-File-Handler)](https://bintray.com/gb-opensource/maven/Fixed-Length-File-Handler)
 
 
 ## Introduction
