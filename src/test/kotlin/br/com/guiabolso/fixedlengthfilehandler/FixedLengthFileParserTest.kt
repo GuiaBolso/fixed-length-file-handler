@@ -122,7 +122,7 @@ class FixedLengthFileParserTest : ShouldSpec() {
                 1jjjj
             """.trimmedInputStream()
             
-            fixedLengthFileParser(stream) {
+            multiFixedLengthFileParser<Bar>(stream) {
                 withRecord({it[0] == '1'}) {
                     Baz(
                         field(0, 1),
@@ -147,6 +147,30 @@ class FixedLengthFileParserTest : ShouldSpec() {
             )
         }
         
+        should("Allow auto-casting to a common type when more than one record is present") {
+            abstract class Foo(open val type: Int)
+            
+            data class Bar(override val type: Int, val string: String) : Foo(type)
+            data class Baz(override val type: Int, val int: Int) : Foo(type)
+            
+            val stream = """
+                1aaaa
+                1bbbb
+                24444
+                25555
+            """.trimmedInputStream()
+    
+            multiFixedLengthFileParser<Foo>(stream) {
+                withRecord({ it[0] == '1' }) {
+                    Bar(field(0, 1), field(1, 5))
+                }
+        
+                withRecord({ it[0] == '2' }) {
+                    Baz(field(0, 1), field(1, 5))
+                }
+            } as Sequence<Foo>
+        }
+        
         should("Throw an exception when trying to parse a line with no mapper for it") {
             val stream = """
                 aaaa
@@ -155,7 +179,7 @@ class FixedLengthFileParserTest : ShouldSpec() {
             """.trimmedInputStream()
     
             shouldThrow<NoRecordMappingException> {
-                fixedLengthFileParser(stream) {
+                multiFixedLengthFileParser<String>(stream) {
                     withRecord({ it.contains("b") }) {
                         field<String>(0, 4)
                     }

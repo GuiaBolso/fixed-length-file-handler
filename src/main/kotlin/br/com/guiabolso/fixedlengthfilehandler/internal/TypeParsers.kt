@@ -22,7 +22,7 @@ import java.time.LocalDateTime
 import kotlin.reflect.KClass
 
 @PublishedApi
-internal inline fun <reified T : Any> defaultFileParser(parse: String): T = parse.parseToType(T::class)
+internal inline fun <reified T : Any> defaultTypeParser(parse: String): T = parse.parseToType(T::class)
 
 @Suppress("UNCHECKED_CAST", "IMPLICIT_CAST_TO_ANY")
 @PublishedApi
@@ -37,9 +37,13 @@ internal fun <T : Any> String.parseToType(type: KClass<T>): T {
         LocalDate::class     -> parseToLocalDate()
         LocalDateTime::class -> parseToLocalDateTime()
         BigDecimal::class    -> parseToBigDecimal()
-        else                 -> throw RuntimeException()
+        else                 -> throw NoParserForClass(type)
     } as T
 }
+
+public class NoParserForClass(
+    klass: KClass<*>
+) : RuntimeException("There are no default parsers for class $klass. Please provide a custom parser")
 
 private fun String.parseToString() = this
 

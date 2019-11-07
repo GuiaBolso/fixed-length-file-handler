@@ -14,44 +14,92 @@
  * limitations under the License.
  */
 
-@file:Suppress("CanBePrimaryConstructorProperty")
-
 package br.com.guiabolso.fixedlengthfilehandler
 
 import br.com.guiabolso.fixedlengthfilehandler.Padding.NoPadding
-import br.com.guiabolso.fixedlengthfilehandler.internal.defaultFileParser
+import br.com.guiabolso.fixedlengthfilehandler.internal.defaultTypeParser
 import java.io.InputStream
 
+/**
+ * Parse a [fileStream] into records defined by [recordBuilder]
+ *
+ * ```
+ * // File:
+ * // aaaa1232019-02-09
+ * // bbbb4562019-03-10
+ * // cccc7892019-04-11
+ *
+ * // Record:
+ * data class Foo(val string: String, val int: Int, val date: LocalDate)
+ *
+ * val sequence: Sequence<Foo> = fixedLengthFileParser<Foo>(stream) {
+ *   Foo(
+ *      field(0, 4),
+ *      field(4, 7),
+ *      field(7, 17)
+ *   )
+ * }
+ * ```
+ *
+ * IMPORTANT: You must close [fileStream] after using it. It would be impossible to close it automatically as the
+ * processing is lazy and the stream is kept open while the `Sequence` is being used.
+ */
 public fun <T> fixedLengthFileParser(
     fileStream: InputStream,
     recordBuilder: FixedLengthFileParser<T>.() -> T
 ): Sequence<T> {
-    return FixedLengthFileParser(
-        fileStream,
-        listOf(RecordMapping({ true }, { recordBuilder(this as FixedLengthFileParser<T>) }))
-    ).buildSequence()
+    val parser = MultiFixedLengthFileParser<T>(fileStream, emptyList())
+    parser.apply { withRecord({ true }, recordBuilder) }
+    return parser.buildSequence()
 }
 
-@JvmName("fixedLengthFileParserTemplates")
-public fun fixedLengthFileParser(
+
+/**
+ * Parse a [fileStream] into records defined by multiple record builders
+ *
+ * ```
+ * // File:
+ * // 1aaaa1232019-02-09
+ * // 1bbbb4562019-03-10
+ * // 2aaaa123
+ *
+ * // Record:
+ * data class Foo(val string: String, val int: Int, val date: LocalDate)
+ * data class Bar(val string: String, val int: Int)
+ *
+ * val sequence: Sequence<Foo> = multiFixedLengthFileParser<Any>(stream) {
+ *   withRecord({ line -> line[0] == '1'}) {
+ *      Foo(field(1, 4), field(5, 8), field(8, 18))
+ *   }
+ *
+ *   withRecord({ line -> line[0] == '2' }) {
+ *      Bar(field(1,4), field(5, 8))
+ *   }
+ * }
+ * ```
+ *
+ * IMPORTANT: You must close [fileStream] after using it. It would be impossible to close it automatically as the
+ * processing is lazy and the stream is kept open while the `Sequence` is being used.
+ */
+public fun <T> multiFixedLengthFileParser(
     fileStream: InputStream,
-    recordBuilderMappings: MultiFixedLengthFileParser<Any>.() -> Unit
-): Sequence<Any> {
-    val parser = MultiFixedLengthFileParser<Any>(fileStream, emptyList())
+    recordBuilderMappings: MultiFixedLengthFileParser<T>.() -> Unit
+): Sequence<T> {
+    val parser = MultiFixedLengthFileParser<T>(fileStream, emptyList())
     parser.apply(recordBuilderMappings)
     return parser.buildSequence()
 }
 
 public open class FixedLengthFileParser<T>(
     private val fileStream: InputStream,
-    recordMappings: List<RecordMapping<out T>>
+    recordMappings: List<FixedLengthFileParser<T>.RecordMapping>
 ) {
 
     @PublishedApi
     internal lateinit var currentLine: String
 
     @PublishedApi
-    internal var recordMappings: MutableList<RecordMapping<out T>> = recordMappings.toMutableList()
+    internal var recordMappings: MutableList<RecordMapping> = recordMappings.toMutableList()
 
     public fun buildSequence(): Sequence<T> {
         return fileStream.bufferedReader().lineSequence().map {
@@ -60,39 +108,39 @@ public open class FixedLengthFileParser<T>(
         }
     }
 
-    private fun recordMapperFor(line: String): RecordMapping<out T> =
+    private fun recordMapperFor(line: String): RecordMapping =
         recordMappings.find { it.lineSelector(line) } ?: throw NoRecordMappingException(line)
 
     public inline fun <reified R : Any> field(
         from: Int,
         toExclusive: Int,
         padding: Padding = NoPadding,
-        unpaddedValueParser: String.() -> R = ::defaultFileParser
+        unpaddedValueParser: String.() -> R = ::defaultTypeParser
     ): R {
         val stringBlock = currentLine.substring(from, toExclusive)
         val stringWithRemovedPadding = padding.removePadding(stringBlock)
         return stringWithRemovedPadding.unpaddedValueParser()
     }
+    
+    public inner class RecordMapping(
+        public val lineSelector: (String) -> Boolean,
+        public val recordBuilder: FixedLengthFileParser<T>.() -> T
+    )
 }
 
 public class MultiFixedLengthFileParser<T>(
     private val fileStream: InputStream,
-    recordMappings: List<RecordMapping<out T>>
+    recordMappings: List<FixedLengthFileParser<T>.RecordMapping>
 ) : FixedLengthFileParser<T>(fileStream, recordMappings) {
 
-    public inline fun <reified R : T> withRecord(
-        noinline lineSelector: (String) -> Boolean,
-        noinline recordBuilder: FixedLengthFileParser<*>.() -> R
+    public fun withRecord(
+        lineSelector: (String) -> Boolean,
+        recordBuilder: FixedLengthFileParser<T>.() -> T
     ) {
         val mapping = RecordMapping(lineSelector, recordBuilder)
         recordMappings.add(mapping)
     }
 }
-
-public class RecordMapping<R>(
-    public val lineSelector: (String) -> Boolean,
-    public val recordBuilder: FixedLengthFileParser<*>.() -> R
-)
 
 public class NoRecordMappingException(
     public val line: String

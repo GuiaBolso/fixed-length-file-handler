@@ -56,7 +56,6 @@ data class MyUserRecord(val username: String, val userDoc: Int, val registryDate
 
 val fileInputStream: InputStream = getFileInputStream()
 
-
 fixedLengthFileParser<MyUserRecord>(fileInputStream) {
     MyUserRecord(
         field(0, 30, Padding.PaddingRight(' ')),
@@ -67,6 +66,10 @@ fixedLengthFileParser<MyUserRecord>(fileInputStream) {
 ```
 
 The library is prepared to handle `Left Padding` and `Right Padding`. It's also prepared to handle many of Kotlin/Java types.
+
+## Closing the file stream
+
+**Attention** - You're responsible for closing the stream after processing the sequence, so be sure to close it!
 
 ## Default parsing
 
@@ -114,7 +117,7 @@ In this cases, the software must look at the first `char` to determine the recor
 data class FirstRecordType(username: String, userMoney: BigDecimal)
 data class SecondRecordType(userCode: Int, registerDate: LocalDate, docs: String)
 
-fixedLengthFileParser(fileInputStream) {
+fixedLengthFileParser<Any>(fileInputStream) {
     withRecord({ line -> line[0] == '1' }) {
         FirstRecordType(
             field(2, 22, Padding.PaddingRight(' ')),
