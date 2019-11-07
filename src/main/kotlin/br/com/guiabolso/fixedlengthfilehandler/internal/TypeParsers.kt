@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("MatchingDeclarationName")
+
 package br.com.guiabolso.fixedlengthfilehandler.internal
 
 import java.math.BigDecimal
