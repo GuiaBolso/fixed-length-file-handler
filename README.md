@@ -88,6 +88,17 @@ This library is prepared to handle some of the most usual Kotlin/Java types. Mor
 - LocalDateTime (Using default DateTimeFormatter)
 - BigDecimal
 
+## Decimal Parsing
+
+There might be scenarios where the default parsing of a decimal (Double / BigDecimal) isn't enough, and you need to declare a special scale, for example `4299` might represent `42.99` (scale of 2, initially undeclared in the String).
+
+For this particular case, you can use `decimalField` instead of `field`:
+
+```kotlin
+decimalField(from = 0, toExclusive = 0, scale = 3, padding = NoPadding)
+```
+
+
 ## Custom parsing
 
 There might be times where the default types are not enough, and you need a custom parser for a given record.
@@ -142,3 +153,7 @@ fixedLengthFileParser<Any>(fileInputStream) {
 
 - The file is streamed into a sequence of values, and is never loaded in its entirety to the memory. You should expect this to have a good performance over a very big file.
 - The Kotlin DSL makes it easier to define the file parsing in a single point, and the sequence processing can be done anywhere
+
+## Changelog
+
+Check the complete changelog [here](./CHANGELOG.md)
