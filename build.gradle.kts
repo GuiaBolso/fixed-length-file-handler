@@ -24,7 +24,7 @@ plugins {
 apply(plugin = "com.novoda.bintray-release")
 
 group = "br.com.guiabolso"
-version = "0.1.0"
+version = "0.2.0"
 
 repositories {
     mavenCentral()

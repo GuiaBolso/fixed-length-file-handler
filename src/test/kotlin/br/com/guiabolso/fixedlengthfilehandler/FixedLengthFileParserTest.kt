@@ -20,6 +20,7 @@ import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import io.kotlintest.specs.ShouldSpec
 import java.io.InputStream
+import java.math.BigDecimal
 import java.time.LocalDate
 
 class FixedLengthFileParserTest : ShouldSpec() {
@@ -48,6 +49,30 @@ class FixedLengthFileParserTest : ShouldSpec() {
             fixedLengthFileParser<String>(stream) {
                 field(from = 0, toExclusive = 4) { replace("a", "b") }
             }.toList() shouldBe listOf("bbbb", "bbbb", "cccc")
+        }
+        
+        should("Allow for choosing decimal scale for doubles") {
+            val stream = """
+                1111
+                2222
+                3333
+            """.trimmedInputStream()
+            
+            fixedLengthFileParser<Double>(stream) {
+                decimalField(from = 0, toExclusive = 4, scale = 2)
+            }.toList() shouldBe listOf(11.11, 22.22, 33.33)
+        }
+        
+        should("Allow for choosing decimal scale for bigdecimal") {
+            val stream = """
+                1111
+                2222
+                3333
+            """.trimmedInputStream()
+            
+            fixedLengthFileParser<BigDecimal>(stream) {
+                decimalField(from = 0, toExclusive = 4, scale = 3)
+            }.toList() shouldBe listOf("1.111".toBigDecimal(), "2.222".toBigDecimal(), "3.333".toBigDecimal())
         }
     
         should("Read stream with more complex types as line with fixed-length") {

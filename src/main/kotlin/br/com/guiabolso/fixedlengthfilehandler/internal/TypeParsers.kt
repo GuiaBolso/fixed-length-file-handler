@@ -64,3 +64,21 @@ private fun String.parseToLocalDate() = LocalDate.parse(this)
 private fun String.parseToLocalDateTime() = LocalDateTime.parse(this)
 
 private fun String.parseToBigDecimal() = this.toBigDecimal()
+
+@PublishedApi
+internal inline fun <reified T : Number> String.parseToDecimal(scale: Int): T {
+    val builder = StringBuilder(this)
+    builder.insert(this.length - scale, '.')
+    val string = builder.toString()
+    
+    return when (T::class) {
+        Double::class     -> string.toDouble()
+        BigDecimal::class -> string.toBigDecimal()
+        else              -> throw NoDecimalParserForClass(T::class)
+    } as T
+}
+
+@PublishedApi
+internal class NoDecimalParserForClass(
+    klass: KClass<*>
+) : RuntimeException("There are no default decimal parsers for class $klass. Please use a custom parser instead.")

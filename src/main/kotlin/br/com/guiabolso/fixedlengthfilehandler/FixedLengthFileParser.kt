@@ -18,6 +18,7 @@ package br.com.guiabolso.fixedlengthfilehandler
 
 import br.com.guiabolso.fixedlengthfilehandler.Padding.NoPadding
 import br.com.guiabolso.fixedlengthfilehandler.internal.defaultTypeParser
+import br.com.guiabolso.fixedlengthfilehandler.internal.parseToDecimal
 import java.io.InputStream
 
 /**
@@ -120,6 +121,18 @@ public open class FixedLengthFileParser<T>(
         val stringBlock = currentLine.substring(from, toExclusive)
         val stringWithRemovedPadding = padding.removePadding(stringBlock)
         return stringWithRemovedPadding.unpaddedValueParser()
+    }
+    
+    public inline fun <reified R : Number> decimalField(
+        from: Int,
+        toExclusive: Int,
+        scale: Int,
+        padding: Padding = NoPadding
+    ): R {
+        val stringBlock = currentLine.substring(from, toExclusive)
+        val stringWithRemovedPadding = padding.removePadding(stringBlock)
+        
+        return stringWithRemovedPadding.parseToDecimal(scale)
     }
     
     public inner class RecordMapping(
