@@ -112,7 +112,7 @@ public open class FixedLengthFileParser<T>(
     private fun recordMapperFor(line: String): RecordMapping =
         recordMappings.find { it.lineSelector(line) } ?: throw NoRecordMappingException(line)
 
-    public inline fun <reified R : Any> field(
+    public inline fun <reified R> field(
         from: Int,
         toExclusive: Int,
         padding: Padding = NoPadding,

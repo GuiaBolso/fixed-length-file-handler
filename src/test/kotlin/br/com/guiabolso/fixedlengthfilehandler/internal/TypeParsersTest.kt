@@ -28,43 +28,44 @@ class TypeParsersTest : ShouldSpec() {
     
     init {
         should("Parse String") {
-            "String".parseToType(String::class) shouldBe "String"
+            "String".parseToType<String>(String::class) shouldBe "String"
         }
         
         should("Parse Int") {
-            "123".parseToType(Int::class) shouldBe 123
+            "123".parseToType<Int>(Int::class) shouldBe 123
         }
         
         should("Parse Double") {
-            "123.4567".parseToType(Double::class) shouldBe (123.4567 plusOrMinus 0.0001)
+            "123.4567".parseToType<Double>(Double::class) shouldBe (123.4567 plusOrMinus 0.0001)
         }
         
         should("Parse Long") {
-            Long.MAX_VALUE.toString().parseToType(Long::class) shouldBe Long.MAX_VALUE
+            Long.MAX_VALUE.toString().parseToType<Long>(Long::class) shouldBe Long.MAX_VALUE
         }
         
         should("Parse to Char") {
-            "a".parseToType(Char::class) shouldBe 'a'
+            "a".parseToType<Char>(Char::class) shouldBe 'a'
             shouldThrowAny { "ab".parseToType(Char::class) }
         }
         
         should("Parse to Boolean") {
-            "true".parseToType(Boolean::class) shouldBe true
-            "false".parseToType(Boolean::class) shouldBe false
-            "TRUE".parseToType(Boolean::class) shouldBe true
+            "true".parseToType<Boolean>(Boolean::class) shouldBe true
+            "false".parseToType<Boolean>(Boolean::class) shouldBe false
+            "TRUE".parseToType<Boolean>(Boolean::class) shouldBe true
         }
         
         should("Parse to LocalDate") {
-            "2019-02-09".parseToType(LocalDate::class) shouldBe LocalDate.of(2019, 2, 9)
+            "2019-02-09".parseToType<LocalDate>(LocalDate::class) shouldBe LocalDate.of(2019, 2, 9)
             shouldThrowAny { "2019-2-9".parseToType(LocalDate::class) }
         }
         
         should("Parse to LocalDateTime") {
-            "2019-02-09T03:55:55".parseToType(LocalDateTime::class) shouldBe LocalDateTime.of(2019, 2, 9, 3, 55, 55)
+            "2019-02-09T03:55:55".parseToType<LocalDateTime>(LocalDateTime::class) shouldBe 
+                    LocalDateTime.of(2019, 2, 9, 3, 55, 55)
         }
         
         should("Parse to BigDecimal") {
-            "123456789.123456789".parseToType(BigDecimal::class) shouldBe BigDecimal("123456789.123456789")
+            "123456789.123456789".parseToType<BigDecimal>(BigDecimal::class) shouldBe BigDecimal("123456789.123456789")
         }
     }
 }

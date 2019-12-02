@@ -24,11 +24,11 @@ import java.time.LocalDateTime
 import kotlin.reflect.KClass
 
 @PublishedApi
-internal inline fun <reified T : Any> defaultTypeParser(parse: String): T = parse.parseToType(T::class)
+internal inline fun <reified T> defaultTypeParser(parse: String): T = parse.parseToType(T::class)
 
 @Suppress("UNCHECKED_CAST", "IMPLICIT_CAST_TO_ANY")
 @PublishedApi
-internal fun <T : Any> String.parseToType(type: KClass<T>): T {
+internal fun <T> String.parseToType(type: KClass<*>): T {
     return when (type) {
         String::class        -> parseToString()
         Int::class           -> parseToInt()
