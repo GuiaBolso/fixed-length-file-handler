@@ -17,6 +17,7 @@
 package br.com.guiabolso.fixedlengthfilehandler.internal
 
 import io.kotlintest.matchers.doubles.plusOrMinus
+import io.kotlintest.matchers.withClue
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrowAny
 import io.kotlintest.specs.ShouldSpec
@@ -72,5 +73,15 @@ class TypeParsersTest : ShouldSpec() {
         should("Parse to BigDecimal") {
             "123456789.123456789".parseToType<BigDecimal>(BigDecimal::class) shouldBe BigDecimal("123456789.123456789")
         }
+
+        should("Parse to Enum class") {
+            "FOO".parseToType<MyEnum>(MyEnum::class) shouldBe MyEnum.FOO
+            withClue("Can't allow ignore case. FOO != FoO in enums") {
+                shouldThrowAny { "bar".parseToType<MyEnum>(MyEnum::class) }
+            }
+            shouldThrowAny { "Fab".parseToType<MyEnum>(MyEnum::class) }
+        }
     }
+
+    private enum class MyEnum { FOO, BAR }
 }

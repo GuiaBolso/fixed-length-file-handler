@@ -14,7 +14,7 @@ buildscript {
 }
 
 plugins {
-    kotlin("jvm") version "1.3.50"
+    kotlin("jvm") version "1.3.61"
     
     `maven-publish`
     id("org.jetbrains.dokka") version "0.9.17"
@@ -34,6 +34,8 @@ repositories {
 dependencies {
     // Kotlin
     implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("reflect"))
+
     
     // KotlinTest
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.2")

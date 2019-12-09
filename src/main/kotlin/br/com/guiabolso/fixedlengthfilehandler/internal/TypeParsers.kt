@@ -23,6 +23,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 
 @PublishedApi
 internal inline fun <reified T> defaultTypeParser(parse: String): T = parse.parseToType(T::class)
@@ -30,6 +31,8 @@ internal inline fun <reified T> defaultTypeParser(parse: String): T = parse.pars
 @Suppress("UNCHECKED_CAST", "IMPLICIT_CAST_TO_ANY")
 @PublishedApi
 internal fun <T> String.parseToType(type: KClass<*>): T {
+    if(type.isSubclassOf(Enum::class)) return parseToEnum(type) as T
+
     return when (type) {
         String::class        -> parseToString()
         Int::class           -> parseToInt()
@@ -68,6 +71,11 @@ private fun String.parseToLocalDateTime() = LocalDateTime.parse(this)
 private fun String.parseToLocalTime() = LocalTime.parse(this)
 
 private fun String.parseToBigDecimal() = this.toBigDecimal()
+
+private fun String.parseToEnum(enumClass: KClass<*>): Enum<*> {
+    val enumConstants = enumClass.java.enumConstants as Array<Enum<*>>
+    return enumConstants.first { it.name == this }
+}
 
 @PublishedApi
 internal inline fun <reified T : Number> String.parseToDecimal(scale: Int): T {
