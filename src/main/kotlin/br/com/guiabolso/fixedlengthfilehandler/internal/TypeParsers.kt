@@ -21,6 +21,7 @@ package br.com.guiabolso.fixedlengthfilehandler.internal
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import kotlin.reflect.KClass
 
 @PublishedApi
@@ -38,6 +39,7 @@ internal fun <T> String.parseToType(type: KClass<*>): T {
         Boolean::class       -> parseToBoolean()
         LocalDate::class     -> parseToLocalDate()
         LocalDateTime::class -> parseToLocalDateTime()
+        LocalTime::class     -> parseToLocalTime()
         BigDecimal::class    -> parseToBigDecimal()
         else                 -> throw NoParserForClass(type)
     } as T
@@ -62,6 +64,8 @@ private fun String.parseToBoolean() = this.toBoolean()
 private fun String.parseToLocalDate() = LocalDate.parse(this)
 
 private fun String.parseToLocalDateTime() = LocalDateTime.parse(this)
+
+private fun String.parseToLocalTime() = LocalTime.parse(this)
 
 private fun String.parseToBigDecimal() = this.toBigDecimal()
 
