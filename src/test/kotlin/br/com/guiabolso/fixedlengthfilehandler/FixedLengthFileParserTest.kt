@@ -233,6 +233,25 @@ class FixedLengthFileParserTest : ShouldSpec() {
                 MyUserRecord("ThirdUsernameWithShorterDoc", 123, LocalDate.of(2017, 4, 11))
             )
         }
+        
+        should("Allow nullable record fields") {
+            data class MyRecordWithNullable(val nonNullable: String, val nullable: String?)
+            
+            val stream = """
+                NonNullableNullable   
+                NonNullableNonNullable
+            """.trimmedInputStream()
+            
+            fixedLengthFileParser<MyRecordWithNullable>(stream) {
+                MyRecordWithNullable(
+                    field(0, 11),
+                    field(11, 22) { if(equals("Nullable   ")) null else this }
+                )
+            }.toList() shouldBe listOf(
+                MyRecordWithNullable("NonNullable", null),
+                MyRecordWithNullable("NonNullable", "NonNullable")
+            )
+        }
     }
     
     private fun String.trimmedInputStream(): InputStream = trimIndent().toByteArray().inputStream()
