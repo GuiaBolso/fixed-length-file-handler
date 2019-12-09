@@ -26,6 +26,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
+@UseExperimental(ExperimentalUnsignedTypes::class)
 class TypeParsersTest : ShouldSpec() {
     
     init {
@@ -36,6 +37,10 @@ class TypeParsersTest : ShouldSpec() {
         should("Parse Int") {
             "123".parseToType<Int>(Int::class) shouldBe 123
         }
+
+        should("Parse UInt") {
+            "123".parseToType<UInt>(UInt::class) shouldBe 123u
+        }
         
         should("Parse Double") {
             "123.4567".parseToType<Double>(Double::class) shouldBe (123.4567 plusOrMinus 0.0001)
@@ -43,6 +48,10 @@ class TypeParsersTest : ShouldSpec() {
         
         should("Parse Long") {
             Long.MAX_VALUE.toString().parseToType<Long>(Long::class) shouldBe Long.MAX_VALUE
+        }
+
+        should("Parse ULong") {
+            ULong.MAX_VALUE.toString().parseToType<ULong>(ULong::class) shouldBe ULong.MAX_VALUE
         }
         
         should("Parse to Char") {
