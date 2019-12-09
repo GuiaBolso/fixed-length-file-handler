@@ -1,5 +1,6 @@
 ## Version 0.3.0 (WIP)
 - Allow parsing nullable records (#8)
+- Add LocalTime type parsing (#10)
 
 ## Version 0.2.0
 
