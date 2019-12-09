@@ -252,7 +252,25 @@ class FixedLengthFileParserTest : ShouldSpec() {
                 MyRecordWithNullable("NonNullable", "NonNullable")
             )
         }
+
+        should("Allow enum record fields") {
+            data class MyRecordWithEnum(val myEnum: MyEnum, val string: String)
+
+            val stream = """
+                FOOSTR
+                BARSTR
+            """.trimmedInputStream()
+
+            fixedLengthFileParser<MyRecordWithEnum>(stream) {
+                MyRecordWithEnum(field(0, 3), field(3, 6))
+            }.toList() shouldBe listOf(
+                MyRecordWithEnum(MyEnum.FOO, "STR"),
+                MyRecordWithEnum(MyEnum.BAR, "STR")
+            )
+        }
     }
     
     private fun String.trimmedInputStream(): InputStream = trimIndent().toByteArray().inputStream()
+
+    private enum class MyEnum { FOO, BAR }
 }
