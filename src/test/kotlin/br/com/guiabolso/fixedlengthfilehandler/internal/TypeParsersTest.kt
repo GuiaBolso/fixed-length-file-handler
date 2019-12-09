@@ -23,6 +23,7 @@ import io.kotlintest.specs.ShouldSpec
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 class TypeParsersTest : ShouldSpec() {
     
@@ -62,6 +63,10 @@ class TypeParsersTest : ShouldSpec() {
         should("Parse to LocalDateTime") {
             "2019-02-09T03:55:55".parseToType<LocalDateTime>(LocalDateTime::class) shouldBe 
                     LocalDateTime.of(2019, 2, 9, 3, 55, 55)
+        }
+
+        should("Parse to LocalTime") {
+            "03:55:55".parseToType<LocalTime>(LocalTime::class) shouldBe LocalTime.of(3, 55, 55)
         }
         
         should("Parse to BigDecimal") {
