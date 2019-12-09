@@ -1,4 +1,4 @@
-## Version 0.3.0 (WIP)
+## Version 0.3.0
 - Add Kotlin UTypes parsing (#6)
 - Add Enum type parsing (#7)
 - Allow parsing nullable records (#8)

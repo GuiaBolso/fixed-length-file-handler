@@ -80,13 +80,17 @@ This library is prepared to handle some of the most usual Kotlin/Java types. Mor
 
 - String
 - Int
+- UInt
 - Double
 - Long
+- ULong
 - Char
 - Boolean (Case insensitive)
 - LocalDate (Using default DateTimeFormatter)
+- LocalTime (Using default DateTimeFormatter)
 - LocalDateTime (Using default DateTimeFormatter)
 - BigDecimal
+- Enum types
 
 ## Decimal Parsing
 
