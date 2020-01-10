@@ -1,1 +1,1 @@
-rootProject.name = "fixed-length-file-handler"
+rootProject.name = "FixedLengthFileHandler"

@@ -25,7 +25,7 @@ repositories {
 And then you can import it into your dependencies:
 ```kotlin
 dependencies {
-    implementation("br.com.guiabolso:fixed-length-file-handler:{version}")
+    implementation("br.com.guiabolso:FixedLengthFileHandler:{version}")
 }
 ```
 
