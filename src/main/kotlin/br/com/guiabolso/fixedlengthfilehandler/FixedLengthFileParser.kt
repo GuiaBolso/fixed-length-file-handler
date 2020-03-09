@@ -122,6 +122,19 @@ public open class FixedLengthFileParser<T>(
         val stringWithRemovedPadding = padding.removePadding(stringBlock)
         return stringWithRemovedPadding.unpaddedValueParser()
     }
+
+    /**
+     * Field will start at [from] and will stop at the end of the line
+     */
+    public inline fun <reified R> field(
+        from: Int,
+        padding: Padding = NoPadding,
+        unpaddedValueParser: String.() -> R = ::defaultTypeParser
+    ): R {
+        val stringBlock = currentLine.substring(from)
+        val stringWithRemovedPadding = padding.removePadding(stringBlock)
+        return stringWithRemovedPadding.unpaddedValueParser()
+    }
     
     public inline fun <reified R : Number> decimalField(
         from: Int,
