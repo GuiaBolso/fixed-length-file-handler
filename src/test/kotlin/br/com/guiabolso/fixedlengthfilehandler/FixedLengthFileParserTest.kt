@@ -268,6 +268,24 @@ class FixedLengthFileParserTest : ShouldSpec() {
                 MyRecordWithEnum(MyEnum.BAR, "STR")
             )
         }
+        
+        should("Parse until end of the line if it's not padded with whitespaces") {
+            data class MyRecord(val first: String, val second: String)
+            
+            val stream = """
+                FirstStrSecondStr
+                FirstStrS
+                FirstStrSecondStr
+            """.trimmedInputStream()
+            
+            fixedLengthFileParser<MyRecord>(stream) {
+                MyRecord(field(0, 8), field(8))
+            }.toList() shouldBe listOf(
+                MyRecord("FirstStr", "SecondStr"),
+                MyRecord("FirstStr", "S"),
+                MyRecord("FirstStr", "SecondStr")
+            )
+        }
     }
     
     private fun String.trimmedInputStream(): InputStream = trimIndent().toByteArray().inputStream()
