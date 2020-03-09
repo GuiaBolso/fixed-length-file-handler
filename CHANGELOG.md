@@ -1,3 +1,6 @@
+## Version 0.4.0
+- Add field overload for to-the-end-of-the-line field (#16)
+
 ## Version 0.3.0
 - Add Kotlin UTypes parsing (#6)
 - Add Enum type parsing (#7)
