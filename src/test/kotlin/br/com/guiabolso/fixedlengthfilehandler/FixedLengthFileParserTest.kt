@@ -203,7 +203,7 @@ class FixedLengthFileParserTest : ShouldSpec() {
                 cccc
             """.trimmedInputStream()
     
-            shouldThrow<NoRecordMappingException> {
+            shouldThrow<LineParseException> {
                 multiFixedLengthFileParser<String>(stream) {
                     withRecord({ it.contains("b") }) {
                         field<String>(0, 4)
@@ -285,6 +285,22 @@ class FixedLengthFileParserTest : ShouldSpec() {
                 MyRecord("FirstStr", "S"),
                 MyRecord("FirstStr", "SecondStr")
             )
+        }
+
+        should("Throw ParseException if there was a line parsing problem") {
+            data class Foo(val string: String, val date: LocalDate)
+
+            val stream = """
+                aaaa2019-02-09
+                bbbb2019-ER-10
+                cccc2019-04-11
+            """.trimmedInputStream()
+
+            shouldThrow<LineParseException> {
+                fixedLengthFileParser<Foo>(stream) {
+                    Foo(field(0, 4), field(4, 13))
+                }.toList()
+            }
         }
     }
     
