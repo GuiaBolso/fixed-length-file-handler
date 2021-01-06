@@ -102,10 +102,16 @@ public open class FixedLengthFileParser<T>(
     @PublishedApi
     internal var recordMappings: MutableList<RecordMapping> = recordMappings.toMutableList()
 
+    @Suppress("TooGenericExceptionCaught")
     public fun buildSequence(): Sequence<T> {
         return fileStream.bufferedReader().lineSequence().map {
             currentLine = it
-            recordMapperFor(it).recordBuilder(this)
+
+            try {
+                recordMapperFor(it).recordBuilder(this)
+            } catch (exception: Exception) {
+                throw LineParseException(currentLine, exception)
+            }
         }
     }
 
@@ -171,3 +177,8 @@ public class MultiFixedLengthFileParser<T>(
 public class NoRecordMappingException(
     public val line: String
 ) : RuntimeException("There are no valid record mappers for line $line")
+
+public class LineParseException(
+    public val line: String,
+    public override val cause: Exception
+) : RuntimeException("Failed to parse line", cause)
