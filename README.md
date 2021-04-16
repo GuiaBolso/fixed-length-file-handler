@@ -14,15 +14,8 @@ This library comes to the rescue of programmers dealing with fixed length files.
 
 ## Using with Gradle
 
-This library is published to `Bintray jcenter`, so you'll need to configure that in your repositories:
-```kotlin
-repositories {
-    mavenCentral()
-    jcenter()
-}
-```
+Import it into your dependencies:
 
-And then you can import it into your dependencies:
 ```kotlin
 dependencies {
     implementation("br.com.guiabolso:FixedLengthFileHandler:{version}")
