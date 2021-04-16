@@ -24,7 +24,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 class FixedLengthFileParserTest : ShouldSpec() {
-    
+
     init {
         should("Read stream with single Strings as lines with fixed-length") {
             val stream = """
@@ -32,58 +32,58 @@ class FixedLengthFileParserTest : ShouldSpec() {
                 bbbb
                 cccc
             """.trimmedInputStream()
-        
+
             fixedLengthFileParser<String>(stream) {
                 field(from = 0, toExclusive = 4)
             }.toList() shouldBe listOf("aaaa", "bbbb", "cccc")
-        
+
         }
-    
+
         should("Allow for custom transformation on values") {
             val stream = """
                 aaaa
                 aaaa
                 cccc
             """.trimmedInputStream()
-        
+
             fixedLengthFileParser<String>(stream) {
                 field(from = 0, toExclusive = 4) { replace("a", "b") }
             }.toList() shouldBe listOf("bbbb", "bbbb", "cccc")
         }
-        
+
         should("Allow for choosing decimal scale for doubles") {
             val stream = """
                 1111
                 2222
                 3333
             """.trimmedInputStream()
-            
+
             fixedLengthFileParser<Double>(stream) {
                 decimalField(from = 0, toExclusive = 4, scale = 2)
             }.toList() shouldBe listOf(11.11, 22.22, 33.33)
         }
-        
+
         should("Allow for choosing decimal scale for bigdecimal") {
             val stream = """
                 1111
                 2222
                 3333
             """.trimmedInputStream()
-            
+
             fixedLengthFileParser<BigDecimal>(stream) {
                 decimalField(from = 0, toExclusive = 4, scale = 3)
             }.toList() shouldBe listOf("1.111".toBigDecimal(), "2.222".toBigDecimal(), "3.333".toBigDecimal())
         }
-    
+
         should("Read stream with more complex types as line with fixed-length") {
             data class Foo(val string: String, val int: Int, val date: LocalDate)
-        
+
             val stream = """
                 aaaa1232019-02-09
                 bbbb4562019-03-10
                 cccc7892019-04-11
             """.trimmedInputStream()
-        
+
             fixedLengthFileParser<Foo>(stream) {
                 Foo(
                     field(0, 4),
@@ -96,49 +96,49 @@ class FixedLengthFileParserTest : ShouldSpec() {
                 Foo("cccc", 789, LocalDate.of(2019, 4, 11))
             )
         }
-    
+
         should("Allow the elimination of any left padding") {
             val stream = """
                 aaaa
                   bb
                    c
             """.trimmedInputStream()
-        
+
             fixedLengthFileParser<String>(stream) {
                 field(0, 4, Padding.PaddingLeft(' '))
             }.toList() shouldBe listOf("aaaa", "bb", "c")
         }
-    
+
         should("Allow the elimination of any left padding with a specified char") {
             val stream = """
                 aaaa
                 00bb
                 000c
             """.trimmedInputStream()
-        
+
             fixedLengthFileParser<String>(stream) {
                 field(0, 4, Padding.PaddingLeft('0'))
             }.toList() shouldBe listOf("aaaa", "bb", "c")
         }
-        
+
         should("Allow the elimination of any right padding with a specified char") {
             val stream = """
                 aaaa
                 bb00
                 c000
             """.trimmedInputStream()
-        
+
             fixedLengthFileParser<String>(stream) {
                 field(0, 4, Padding.PaddingRight('0'))
             }.toList() shouldBe listOf("aaaa", "bb", "c")
         }
-        
+
         should("Read stream with more than one possible record types") {
             abstract class Bar
-    
+
             data class Baz(val type: Int, val fullString: String) : Bar()
             data class Foo(val type: Int, val int: Int, val firstString: String, val secondString: String) : Bar()
-            
+
             val stream = """
                 1aaaa
                 1bbbb
@@ -146,7 +146,7 @@ class FixedLengthFileParserTest : ShouldSpec() {
                 21234ccdd
                 1jjjj
             """.trimmedInputStream()
-            
+
             multiFixedLengthFileParser<Bar>(stream) {
                 withRecord({it[0] == '1'}) {
                     Baz(
@@ -154,7 +154,7 @@ class FixedLengthFileParserTest : ShouldSpec() {
                         field(1, 5)
                     )
                 }
-                
+
                 withRecord({ it[0] == '2' }) {
                     Foo(
                         field(0, 1),
@@ -171,38 +171,38 @@ class FixedLengthFileParserTest : ShouldSpec() {
                 Baz(1, "jjjj")
             )
         }
-        
+
         should("Allow auto-casting to a common type when more than one record is present") {
             abstract class Foo(open val type: Int)
-            
+
             data class Bar(override val type: Int, val string: String) : Foo(type)
             data class Baz(override val type: Int, val int: Int) : Foo(type)
-            
+
             val stream = """
                 1aaaa
                 1bbbb
                 24444
                 25555
             """.trimmedInputStream()
-    
+
             multiFixedLengthFileParser<Foo>(stream) {
                 withRecord({ it[0] == '1' }) {
                     Bar(field(0, 1), field(1, 5))
                 }
-        
+
                 withRecord({ it[0] == '2' }) {
                     Baz(field(0, 1), field(1, 5))
                 }
             } as Sequence<Foo>
         }
-        
+
         should("Throw an exception when trying to parse a line with no mapper for it") {
             val stream = """
                 aaaa
                 aaaa
                 cccc
             """.trimmedInputStream()
-    
+
             shouldThrow<LineParseException> {
                 multiFixedLengthFileParser<String>(stream) {
                     withRecord({ it.contains("b") }) {
@@ -211,16 +211,16 @@ class FixedLengthFileParserTest : ShouldSpec() {
                 }.toList()
             }
         }
-        
+
         should("Parse correctly the documentation example") {
             data class MyUserRecord(val username: String, val userDoc: Int, val registryDate: LocalDate)
-            
+
             val stream = """
                 FirstUsername                 1234567892019-02-09
                 SecondAndLongerUsername       9876543212018-03-10
                 ThirdUsernameWithShorterDoc   0000001232017-04-11
             """.trimmedInputStream()
-            
+
             fixedLengthFileParser<MyUserRecord>(stream) {
                 MyUserRecord(
                     field(0, 30, Padding.PaddingRight(' ')),
@@ -233,15 +233,15 @@ class FixedLengthFileParserTest : ShouldSpec() {
                 MyUserRecord("ThirdUsernameWithShorterDoc", 123, LocalDate.of(2017, 4, 11))
             )
         }
-        
+
         should("Allow nullable record fields") {
             data class MyRecordWithNullable(val nonNullable: String, val nullable: String?)
-            
+
             val stream = """
                 NonNullableNullable   
                 NonNullableNonNullable
             """.trimmedInputStream()
-            
+
             fixedLengthFileParser<MyRecordWithNullable>(stream) {
                 MyRecordWithNullable(
                     field(0, 11),
@@ -268,16 +268,16 @@ class FixedLengthFileParserTest : ShouldSpec() {
                 MyRecordWithEnum(MyEnum.BAR, "STR")
             )
         }
-        
+
         should("Parse until end of the line if it's not padded with whitespaces") {
             data class MyRecord(val first: String, val second: String)
-            
+
             val stream = """
                 FirstStrSecondStr
                 FirstStrS
                 FirstStrSecondStr
             """.trimmedInputStream()
-            
+
             fixedLengthFileParser<MyRecord>(stream) {
                 MyRecord(field(0, 8), field(8))
             }.toList() shouldBe listOf(
@@ -298,12 +298,30 @@ class FixedLengthFileParserTest : ShouldSpec() {
 
             shouldThrow<LineParseException> {
                 fixedLengthFileParser<Foo>(stream) {
-                    Foo(field(0, 4), field(4, 13))
+                    Foo(field(0, 4), field(4, 14))
                 }.toList()
             }
         }
+
+        should("Allow custom exception handling") {
+            data class Foo(val string: String, val date: LocalDate)
+
+            val stream = """
+                aaaa2019-02-09
+                bbbb2019-ER-10
+                cccc2019-04-11
+            """.trimmedInputStream()
+
+            fixedLengthFileParser<Foo?>(stream, { null }) {
+                Foo(field(0, 4), field(4, 14))
+            }.toList() shouldBe listOf(
+                Foo("aaaa", LocalDate.of(2019, 2, 9)),
+                null,
+                Foo("cccc", LocalDate.of(2019, 4, 11))
+            )
+        }
     }
-    
+
     private fun String.trimmedInputStream(): InputStream = trimIndent().toByteArray().inputStream()
 
     private enum class MyEnum { FOO, BAR }
