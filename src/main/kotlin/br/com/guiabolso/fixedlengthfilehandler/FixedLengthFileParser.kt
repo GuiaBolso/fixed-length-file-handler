@@ -47,11 +47,12 @@ import java.io.InputStream
  */
 public fun <T> fixedLengthFileParser(
     fileStream: InputStream,
+    exceptionHandler: (LineParseException) -> T = { throw it },
     recordBuilder: FixedLengthFileParser<T>.() -> T
 ): Sequence<T> {
     val parser = MultiFixedLengthFileParser<T>(fileStream, emptyList())
     parser.apply { withRecord({ true }, recordBuilder) }
-    return parser.buildSequence()
+    return parser.buildSequence(exceptionHandler)
 }
 
 
@@ -84,11 +85,12 @@ public fun <T> fixedLengthFileParser(
  */
 public fun <T> multiFixedLengthFileParser(
     fileStream: InputStream,
+    exceptionHandler: (LineParseException) -> T = { throw it },
     recordBuilderMappings: MultiFixedLengthFileParser<T>.() -> Unit
 ): Sequence<T> {
     val parser = MultiFixedLengthFileParser<T>(fileStream, emptyList())
     parser.apply(recordBuilderMappings)
-    return parser.buildSequence()
+    return parser.buildSequence(exceptionHandler)
 }
 
 public open class FixedLengthFileParser<T>(
@@ -103,14 +105,14 @@ public open class FixedLengthFileParser<T>(
     internal var recordMappings: MutableList<RecordMapping> = recordMappings.toMutableList()
 
     @Suppress("TooGenericExceptionCaught")
-    public fun buildSequence(): Sequence<T> {
+    public fun buildSequence(exceptionHandler: (LineParseException) -> T = { throw it }): Sequence<T> {
         return fileStream.bufferedReader().lineSequence().map {
             currentLine = it
 
             try {
                 recordMapperFor(it).recordBuilder(this)
             } catch (exception: Exception) {
-                throw LineParseException(currentLine, exception)
+                exceptionHandler(LineParseException(currentLine, exception))
             }
         }
     }
@@ -141,7 +143,7 @@ public open class FixedLengthFileParser<T>(
         val stringWithRemovedPadding = padding.removePadding(stringBlock)
         return stringWithRemovedPadding.unpaddedValueParser()
     }
-    
+
     public inline fun <reified R : Number> decimalField(
         from: Int,
         toExclusive: Int,
@@ -150,10 +152,10 @@ public open class FixedLengthFileParser<T>(
     ): R {
         val stringBlock = currentLine.substring(from, toExclusive)
         val stringWithRemovedPadding = padding.removePadding(stringBlock)
-        
+
         return stringWithRemovedPadding.parseToDecimal(scale)
     }
-    
+
     public inner class RecordMapping(
         public val lineSelector: (String) -> Boolean,
         public val recordBuilder: FixedLengthFileParser<T>.() -> T
