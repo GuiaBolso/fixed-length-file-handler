@@ -312,7 +312,7 @@ class FixedLengthFileParserTest : ShouldSpec() {
                 cccc2019-04-11
             """.trimmedInputStream()
 
-            fixedLengthFileParser<Foo?>(stream, { null }) {
+            fixedLengthFileParser<Foo?>(stream, Charsets.UTF_8, { null }) {
                 Foo(field(0, 4), field(4, 14))
             }.toList() shouldBe listOf(
                 Foo("aaaa", LocalDate.of(2019, 2, 9)),
