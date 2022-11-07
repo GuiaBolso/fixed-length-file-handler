@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>UnnecessaryAbstractClass:FixedLengthFileParserTest.kt$FixedLengthFileParserTest.Bar$Bar</ID>
+    <ID>UnnecessaryAbstractClass:FixedLengthFileParserTest.kt$FixedLengthFileParserTest.Foo$Foo</ID>
+  </CurrentIssues>
+</SmellBaseline>

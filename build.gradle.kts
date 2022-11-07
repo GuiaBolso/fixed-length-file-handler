@@ -2,17 +2,16 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.lang.System.getenv
 
 plugins {
-    kotlin("jvm") version "1.4.32"
+    kotlin("jvm") version "1.7.20"
     `maven-publish`
     signing
-    id("io.gitlab.arturbosch.detekt").version("1.16.0")
+    id("io.gitlab.arturbosch.detekt").version("1.22.0-RC3")
 }
 
 group = "br.com.guiabolso"
 version = getenv("RELEASE_VERSION") ?: "local"
 
 repositories {
-    jcenter()
     mavenCentral()
 }
 
@@ -28,8 +27,14 @@ dependencies {
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.2")
 }
 
+detekt {
+    toolVersion = "1.22.0-RC3"
+    config = files("config/detekt/detekt.yml")
+    buildUponDefaultConfig = true
+}
+
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = "17"
 }
 
 tasks.withType<Test> {
@@ -38,7 +43,7 @@ tasks.withType<Test> {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8))
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 

@@ -193,7 +193,7 @@ class FixedLengthFileParserTest : ShouldSpec() {
                 withRecord({ it[0] == '2' }) {
                     Baz(field(0, 1), field(1, 5))
                 }
-            } as Sequence<Foo>
+            }
         }
 
         should("Throw an exception when trying to parse a line with no mapper for it") {
@@ -312,7 +312,7 @@ class FixedLengthFileParserTest : ShouldSpec() {
                 cccc2019-04-11
             """.trimmedInputStream()
 
-            fixedLengthFileParser<Foo?>(stream, { null }) {
+            fixedLengthFileParser<Foo?>(stream, Charsets.UTF_8, { null }) {
                 Foo(field(0, 4), field(4, 14))
             }.toList() shouldBe listOf(
                 Foo("aaaa", LocalDate.of(2019, 2, 9)),
