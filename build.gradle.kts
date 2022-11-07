@@ -5,7 +5,7 @@ plugins {
     kotlin("jvm") version "1.7.20"
     `maven-publish`
     signing
-    id("io.gitlab.arturbosch.detekt").version("1.22.0-RC2")
+    id("io.gitlab.arturbosch.detekt").version("1.22.0-RC3")
 }
 
 group = "br.com.guiabolso"
@@ -25,6 +25,12 @@ dependencies {
 
     // KotlinTest
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.2")
+}
+
+detekt {
+    toolVersion = "1.22.0-RC3"
+    config = files("config/detekt/detekt.yml")
+    buildUponDefaultConfig = true
 }
 
 tasks.withType<KotlinCompile> {
