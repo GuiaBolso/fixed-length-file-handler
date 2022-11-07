@@ -193,7 +193,7 @@ class FixedLengthFileParserTest : ShouldSpec() {
                 withRecord({ it[0] == '2' }) {
                     Baz(field(0, 1), field(1, 5))
                 }
-            } as Sequence<Foo>
+            }
         }
 
         should("Throw an exception when trying to parse a line with no mapper for it") {
