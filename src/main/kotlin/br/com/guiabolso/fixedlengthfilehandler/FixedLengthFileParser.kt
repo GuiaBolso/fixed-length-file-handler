@@ -20,6 +20,7 @@ import br.com.guiabolso.fixedlengthfilehandler.Padding.NoPadding
 import br.com.guiabolso.fixedlengthfilehandler.internal.defaultTypeParser
 import br.com.guiabolso.fixedlengthfilehandler.internal.parseToDecimal
 import java.io.InputStream
+import java.nio.charset.Charset
 
 /**
  * Parse a [fileStream] into records defined by [recordBuilder]
@@ -47,10 +48,11 @@ import java.io.InputStream
  */
 public fun <T> fixedLengthFileParser(
     fileStream: InputStream,
+    charset: Charset = Charsets.UTF_8,
     exceptionHandler: (LineParseException) -> T = { throw it },
     recordBuilder: FixedLengthFileParser<T>.() -> T
 ): Sequence<T> {
-    val parser = MultiFixedLengthFileParser<T>(fileStream, emptyList())
+    val parser = MultiFixedLengthFileParser<T>(fileStream, charset, emptyList())
     parser.apply { withRecord({ true }, recordBuilder) }
     return parser.buildSequence(exceptionHandler)
 }
@@ -85,16 +87,18 @@ public fun <T> fixedLengthFileParser(
  */
 public fun <T> multiFixedLengthFileParser(
     fileStream: InputStream,
+    charset: Charset = Charsets.UTF_8,
     exceptionHandler: (LineParseException) -> T = { throw it },
     recordBuilderMappings: MultiFixedLengthFileParser<T>.() -> Unit
 ): Sequence<T> {
-    val parser = MultiFixedLengthFileParser<T>(fileStream, emptyList())
+    val parser = MultiFixedLengthFileParser<T>(fileStream, charset, emptyList())
     parser.apply(recordBuilderMappings)
     return parser.buildSequence(exceptionHandler)
 }
 
 public open class FixedLengthFileParser<T>(
     private val fileStream: InputStream,
+    private val charset: Charset = Charsets.UTF_8,
     recordMappings: List<FixedLengthFileParser<T>.RecordMapping>
 ) {
 
@@ -106,7 +110,7 @@ public open class FixedLengthFileParser<T>(
 
     @Suppress("TooGenericExceptionCaught")
     public fun buildSequence(exceptionHandler: (LineParseException) -> T = { throw it }): Sequence<T> {
-        return fileStream.bufferedReader().lineSequence().map {
+        return fileStream.bufferedReader(charset).lineSequence().map {
             currentLine = it
 
             try {
@@ -163,9 +167,10 @@ public open class FixedLengthFileParser<T>(
 }
 
 public class MultiFixedLengthFileParser<T>(
-    private val fileStream: InputStream,
+    fileStream: InputStream,
+    charset: Charset = Charsets.UTF_8,
     recordMappings: List<FixedLengthFileParser<T>.RecordMapping>
-) : FixedLengthFileParser<T>(fileStream, recordMappings) {
+) : FixedLengthFileParser<T>(fileStream, charset, recordMappings) {
 
     public fun withRecord(
         lineSelector: (String) -> Boolean,
