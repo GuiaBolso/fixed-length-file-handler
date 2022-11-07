@@ -50,7 +50,7 @@ internal fun <T> String.parseToType(type: KClass<*>): T {
     } as T
 }
 
-public class NoParserForClass(
+class NoParserForClass(
     klass: KClass<*>
 ) : RuntimeException("There are no default parsers for class $klass. Please provide a custom parser")
 
@@ -78,6 +78,7 @@ private fun String.parseToLocalTime() = LocalTime.parse(this)
 
 private fun String.parseToBigDecimal() = this.toBigDecimal()
 
+@Suppress("UNCHECKED_CAST")
 private fun String.parseToEnum(enumClass: KClass<*>): Enum<*> {
     val enumConstants = enumClass.java.enumConstants as Array<Enum<*>>
     return enumConstants.first { it.name == this }
