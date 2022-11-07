@@ -30,7 +30,6 @@ internal inline fun <reified T> defaultTypeParser(parse: String): T = parse.pars
 
 @Suppress("UNCHECKED_CAST", "IMPLICIT_CAST_TO_ANY")
 @PublishedApi
-@UseExperimental(ExperimentalUnsignedTypes::class)
 internal fun <T> String.parseToType(type: KClass<*>): T {
     if(type.isSubclassOf(Enum::class)) return parseToEnum(type) as T
 
@@ -59,14 +58,12 @@ private fun String.parseToString() = this
 
 private fun String.parseToInt() = this.toInt()
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 private fun String.parseToUInt() = this.toUInt()
 
 private fun String.parseToDouble() = this.toDouble()
 
 private fun String.parseToLong() = this.toLong()
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 private fun String.parseToULong() = this.toULong()
 
 private fun String.parseToChar() = this.single()
